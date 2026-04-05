@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pinterest Style UI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Raleway:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: url('/Templates/Login.jpg') no-repeat center center fixed; 
+      background-size: cover; /* keeps full-screen without zoom distortion */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wrapper {
+      position: relative;
+      width: 760px;
+      height: 500px;
+    }
+
+    .card {
+      position: absolute;
+      top: 0;
+      width: 360px;
+      height: 100%;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      backdrop-filter: blur(15px);
+      transition: transform 0.7s ease, opacity 0.7s ease;
+    }
+
+    /* LOGIN CARD */
+    .login-card {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(15px);
+      padding: 40px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between; /* keeps button at bottom */
+      gap: 20px;
+      left: 0;
+    }
+
+    .login-card h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .login-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .login-header button {
+      background: #e60023;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 14px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 18px; /* spacing between inputs */
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 14px 40px 14px 14px; /* taller inputs */
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      background: rgba(255,255,255,0.6);
+      font-size: 0.9rem;
+    }
+
+    .input-group i {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #555;
+      font-size: 1rem;
+    }
+
+    .forgot-btn {
+      align-self: flex-end;
+      font-size: 0.8rem;
+      color: #000;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-top: -5px;
+      margin-bottom: 10px; /* spacing after link */
+    }
+
+    .disclaimer {
+      font-size: 0.75rem;
+      color: #555;
+      line-height: 1.3;
+    }
+
+    .info-link {
+      font-size: 0.8rem;
+      color: #000;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .submit-btn {
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 52px;
+      height: 52px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      align-self: flex-end; /* stays bottom-right */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px; /* breathing room */
+    }
+
+    /* CALENDAR CARD */
+    .calendar-card {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(15px);
+      padding: 40px 25px;
+      right: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Removed unwanted circle (::before) */
+    .calendar-card::before {
+      display: none;
+    }
+
+    .calendar-content {
+      position: relative;
+      z-index: 1;
+      font-family: 'Raleway', sans-serif;
+      text-align: center;
+      color: #000;
+    }
+
+    .calendar-content h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .calendar-content small {
+      font-size: 1rem;
+      color: #222;
+      font-weight: 500;
+    }
+
+    .calendar-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .calendar-footer span {
+      font-weight: 600;
+      font-family: 'Raleway', sans-serif;
+    }
+
+    .calendar-footer button {
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 14px;
+      cursor: pointer;
+    }
+
+    /* REFERENCES */
+    .references {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: #000;
+      color: #fff;
+      border-radius: 16px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      max-width: 320px;
+      width: 100%;
+    }
+
+    .references button {
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    /* Swapping states */
+    .login-left { transform: translateX(0); }
+    .login-right { transform: translateX(400px); }
+
+    .calendar-right { transform: translateX(0); }
+    .calendar-left { transform: translateX(-400px); }
+
+    /* Responsive */
+    @media (max-width: 820px) {
+      .wrapper {
+        width: 100%;
+        height: auto;
+      }
+      .card {
+        position: relative;
+        width: 100%;
+        transform: translateX(0) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <!-- Login/Sign Up Card -->
+    <div class="card login-card login-left" id="loginCard">
+      <div class="login-header">
+        <h2 id="loginTitle">Log in</h2>
+        <button id="swapBtn">Sign Up</button>
+      </div>
+
+      <div id="formFields">
+        <div class="input-group">
+          <input type="email" placeholder="e-mail address">
+          <i>📧</i>
+        </div>
+        <div class="input-group">
+          <input type="password" placeholder="password">
+          <i>🔒</i>
+        </div>
+        <div class="forgot-btn">I forgot</div>
+      </div>
+
+      <p class="disclaimer">By continuing, you agree to our Terms of Service and Privacy Policy.</p>
+      <span class="info-link">Click here for more info.</span>
+
+      <button class="submit-btn" onclick="window.location.href='home.html'">→</button>
+
+    </div>
+
+    <!-- Calendar Card -->
+    <div class="card calendar-card calendar-right" id="calendarCard">
+      <div class="calendar-content">
+        <h1 id="dateDisplay"></h1>
+        <small id="timeDisplay"></small>
+      </div>
+      <div class="calendar-footer">
+        <span>Creative.style</span>
+        <button>Click Here</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- References -->
+  <div class="references">
+    <span>World<br>of Podcasts</span>
+    <button>Discover</button>
+  </div>
+
+ <script>
+  const swapBtn = document.getElementById("swapBtn");
+  const loginCard = document.getElementById("loginCard");
+  const calendarCard = document.getElementById("calendarCard");
+  const loginTitle = document.getElementById("loginTitle");
+  const formFields = document.getElementById("formFields");
+  const submitBtn = document.querySelector(".submit-btn");
+
+  let swapped = false;
+
+  swapBtn.addEventListener("click", () => {
+    if (!swapped) {
+      loginCard.classList.remove("login-left");
+      loginCard.classList.add("login-right");
+
+      calendarCard.classList.remove("calendar-right");
+      calendarCard.classList.add("calendar-left");
+
+      loginTitle.textContent = "Sign Up";
+      swapBtn.textContent = "Log In";
+      formFields.innerHTML = `
+        <div class="input-group">
+          <input type="text" id="username" placeholder="username" name="username">
+          <i>👤</i>
+        </div>
+        <div class="input-group">
+          <input type="email" id="email" placeholder="e-mail address" name="email">
+          <i>📧</i>
+        </div>
+        <div class="input-group">
+          <input type="password" id="password" placeholder="password" name="password">
+          <i>🔒</i>
+        </div>
+        <div class="input-group">
+          <input type="password" id="confirmPassword" placeholder="confirm password" name="confirmPassword">
+          <i>🔒</i>
+        </div>
+      `;
+      swapped = true;
+    } else {
+      loginCard.classList.remove("login-right");
+      loginCard.classList.add("login-left");
+
+      calendarCard.classList.remove("calendar-left");
+      calendarCard.classList.add("calendar-right");
+
+      loginTitle.textContent = "Log in";
+      swapBtn.textContent = "Sign Up";
+      formFields.innerHTML = `
+        <div class="input-group">
+          <input type="email" id="email" placeholder="e-mail address" name="email">
+          <i>📧</i>
+        </div>
+        <div class="input-group">
+          <input type="password" id="password" placeholder="password" name="password">
+          <i>🔒</i>
+        </div>
+        <div class="forgot-btn">I forgot</div>
+      `;
+      swapped = false;
+    }
+  });
+
+  submitBtn.addEventListener("click", async () => {
+    const mode = swapped ? "signup" : "login";
+
+    let data = {};
+    if (mode === "signup") {
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+      }
+
+      data = { username, email, password };
+    } else {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      data = { email, password };
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5000/${mode}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      alert(result.message);
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong. Check server!");
+    }
+  });
+
+  function updateDateTime() {
+    const dateEl = document.getElementById("dateDisplay");
+    const timeEl = document.getElementById("timeDisplay");
+
+    const now = new Date();
+    const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+
+    dateEl.textContent = now.toLocaleDateString("en-US", options);
+    timeEl.textContent = now.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  setInterval(updateDateTime, 1000);
+  updateDateTime();
+</script>
+
+</body>
+</html>
