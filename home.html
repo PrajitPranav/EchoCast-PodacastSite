@@ -342,7 +342,7 @@
     const fetchEpisodes = async () => {
       const container = document.getElementById("episodesContainer");
       try {
-        const res = await fetch("http://localhost:5000/api/episodes");
+        const res = await fetch("http://localhost:3000/api/episodes");
         if (!res.ok) throw new Error("Failed to fetch");
         const episodes = await res.json();
         

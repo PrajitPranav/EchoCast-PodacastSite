@@ -45,7 +45,7 @@ npm start
 You should see:
 ```text
 ✅ MongoDB connected
-🚀 Server running on http://localhost:5000
+🚀 Server running on http://localhost:3000
 ```
 
 ### 5. Seed Initial Data (Very Important!)
@@ -53,7 +53,7 @@ You should see:
 To populate the dynamic frontend with playable episodes without manually typing them into your database, run the following `curl` command (or use Postman) to hit the seed endpoint **while your server is running**:
 
 ```bash
-curl -X POST http://localhost:5000/api/seed
+curl -X POST http://localhost:3000/api/seed
 ```
 This will insert four interactive podcast episodes with real audio files into your database.
 

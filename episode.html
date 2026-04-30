@@ -293,7 +293,7 @@
         return;
       }
       try {
-        const res = await fetch("http://localhost:5000/api/episodes/" + epId);
+        const res = await fetch("http://localhost:3000/api/episodes/" + epId);
         if (!res.ok) throw new Error("not found");
         const ep = await res.json();
         buildPage(ep);

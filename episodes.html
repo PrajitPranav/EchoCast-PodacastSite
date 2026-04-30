@@ -189,7 +189,7 @@
     const fetchEpisodes = async () => {
       const grid = document.getElementById("episodesGrid");
       try {
-        const res = await fetch("http://localhost:5000/api/episodes");
+        const res = await fetch("http://localhost:3000/api/episodes");
         if (!res.ok) throw new Error("fetch failed");
         const episodes = await res.json();
         grid.innerHTML = "";

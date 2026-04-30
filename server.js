@@ -65,6 +65,8 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.get("/", (req, res) => res.redirect("/home.html"));
+
 app.get("/api/episodes", async (req, res) => {
   try {
     const episodes = await Episode.find().sort({ createdAt: -1 });
@@ -160,5 +162,5 @@ app.post("/api/seed", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
