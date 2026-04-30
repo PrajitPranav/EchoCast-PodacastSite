@@ -312,7 +312,7 @@
 
     const initPlayer = (ep) => {
       audio.preload = "auto";
-      audio.src = ep.audioUrl;
+      audio.src = `/api/audio/proxy?url=${encodeURIComponent(ep.audioUrl)}`;
 
       const playBtn = document.getElementById("playBtn");
       const playIcon = playBtn.querySelector("i");
@@ -389,6 +389,15 @@
       });
 
       audio.addEventListener("canplay", () => {
+        playBtn.disabled = false;
+        if (!isPlaying) {
+          playerStatus.innerText = "Ready to play";
+          playIcon.className = "fas fa-play";
+          playBtn.style.paddingLeft = "3px";
+        }
+      });
+
+      audio.addEventListener("canplaythrough", () => {
         playBtn.disabled = false;
         if (!isPlaying) {
           playerStatus.innerText = "Ready to play";

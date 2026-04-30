@@ -160,6 +160,28 @@ app.get("/api/insights/:episodeId", async (req, res) => {
   }
 });
 
+const https = require('https');
+const http = require('http');
+
+app.get('/api/audio/proxy', (req, res) => {
+  const audioUrl = req.query.url;
+  if (!audioUrl) return res.status(400).send('URL is required');
+
+  const clientModule = audioUrl.startsWith('https') ? https : http;
+  const options = {};
+  if (req.headers.range) {
+    options.headers = { Range: req.headers.range };
+  }
+
+  clientModule.get(audioUrl, options, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode, proxyRes.headers);
+    proxyRes.pipe(res);
+  }).on('error', (err) => {
+    console.error('Proxy error:', err);
+    if (!res.headersSent) res.status(500).send('Error proxying audio');
+  });
+});
+
 app.post("/api/seed", async (req, res) => {
   try {
     await Episode.deleteMany({});
@@ -169,7 +191,7 @@ app.post("/api/seed", async (req, res) => {
         description: "In this powerful episode, we explore the psychology behind fear and self-doubt. Learn proven mental frameworks and real-world techniques that high performers use to push through their limits, silence the inner critic, and take bold action every single day. Whether you're facing career anxiety, imposter syndrome, or just feeling stuck — this episode gives you the tools to break free.",
         host: "Nolan Bator",
         coverImage: "https://api.dicebear.com/7.x/adventurer/svg?seed=podcaster1",
-        audioUrl: "https://ia800905.us.archive.org/19/items/FREE_background_music_dls/percentusethis.mp3",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
         duration: "30:42",
         category: "Mindset"
       },
@@ -178,7 +200,7 @@ app.post("/api/seed", async (req, res) => {
         description: "Resilience isn't just bouncing back — it's bouncing forward. In this deeply insightful conversation, Maren Geidt shares stories of people who transformed adversity into their greatest advantage. Packed with actionable strategies for building mental toughness, finding meaning in struggle, and emerging stronger from every setback life throws your way.",
         host: "Maren Geidt",
         coverImage: "https://api.dicebear.com/7.x/adventurer/svg?seed=podcaster2",
-        audioUrl: "https://ia800905.us.archive.org/19/items/FREE_background_music_dls/pocketmenuvariousartists.mp3",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
         duration: "28:30",
         category: "Mindset"
       },
