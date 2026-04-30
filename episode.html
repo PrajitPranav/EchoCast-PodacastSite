@@ -278,8 +278,8 @@
     };
 
     const initPlayer = (ep) => {
+      audio.preload = "auto";
       audio.src = ep.audioUrl;
-      audio.preload = "metadata";
 
       const playBtn = document.getElementById("playBtn");
       const playIcon = playBtn.querySelector("i");
@@ -327,6 +327,12 @@
             localStorage.setItem("playback_" + ep._id, Math.floor(cur));
           }
         }
+        // Phase 3: keep reaction/insight badges in sync
+        const t = fmt(cur || 0);
+        const rxnBadge = document.getElementById("rxnTimeBadge");
+        const insBadge = document.getElementById("insightTsBadge");
+        if (rxnBadge) rxnBadge.innerText = "at " + t;
+        if (insBadge) insBadge.innerText = "📍 Capturing at " + t;
       });
 
       audio.addEventListener("ended", () => {
@@ -337,8 +343,26 @@
         currentTimeEl.innerText = "0:00";
       });
 
-      audio.addEventListener("waiting", () => { playerStatus.innerText = "Buffering..."; });
-      audio.addEventListener("canplay", () => { if (!isPlaying) playerStatus.innerText = "Ready"; });
+      audio.addEventListener("waiting", () => {
+        playerStatus.innerText = "Buffering...";
+        playIcon.className = "fas fa-circle-notch fa-spin";
+        playBtn.style.paddingLeft = "0";
+        playBtn.disabled = true;
+      });
+
+      audio.addEventListener("playing", () => {
+        playBtn.disabled = false;
+        updatePlayState(true);
+      });
+
+      audio.addEventListener("canplay", () => {
+        playBtn.disabled = false;
+        if (!isPlaying) {
+          playerStatus.innerText = "Ready to play";
+          playIcon.className = "fas fa-play";
+          playBtn.style.paddingLeft = "3px";
+        }
+      });
 
       playBtn.addEventListener("click", () => {
         if (audio.paused) { audio.play().then(() => updatePlayState(true)).catch(() => {}); }
@@ -365,15 +389,6 @@
         if (audio.volume > 0) { audio._pv = audio.volume; audio.volume = 0; volSlider.value = 0; volIcon.className = "fas fa-volume-mute vol-icon"; }
         else { audio.volume = audio._pv || 1; volSlider.value = audio.volume * 100; volIcon.className = "fas fa-volume-up vol-icon"; }
       });
-
-      // Update reaction and insight time badges as audio plays
-      audio.addEventListener("timeupdate", () => {
-        const t = fmt(audio.currentTime);
-        const rxnBadge = document.getElementById("rxnTimeBadge");
-        const insBadge = document.getElementById("insightTsBadge");
-        if (rxnBadge) rxnBadge.innerText = "at " + t;
-        if (insBadge) insBadge.innerText = "📍 Capturing at " + t;
-      }, { passive: true });
 
       initReactions(ep, audio);
       initInsights(ep, audio);

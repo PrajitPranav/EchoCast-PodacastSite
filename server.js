@@ -169,7 +169,7 @@ app.post("/api/seed", async (req, res) => {
         description: "In this powerful episode, we explore the psychology behind fear and self-doubt. Learn proven mental frameworks and real-world techniques that high performers use to push through their limits, silence the inner critic, and take bold action every single day. Whether you're facing career anxiety, imposter syndrome, or just feeling stuck — this episode gives you the tools to break free.",
         host: "Nolan Bator",
         coverImage: "https://api.dicebear.com/7.x/adventurer/svg?seed=podcaster1",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        audioUrl: "https://ia800905.us.archive.org/19/items/FREE_background_music_dls/percentusethis.mp3",
         duration: "30:42",
         category: "Mindset"
       },
@@ -178,7 +178,7 @@ app.post("/api/seed", async (req, res) => {
         description: "Resilience isn't just bouncing back — it's bouncing forward. In this deeply insightful conversation, Maren Geidt shares stories of people who transformed adversity into their greatest advantage. Packed with actionable strategies for building mental toughness, finding meaning in struggle, and emerging stronger from every setback life throws your way.",
         host: "Maren Geidt",
         coverImage: "https://api.dicebear.com/7.x/adventurer/svg?seed=podcaster2",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        audioUrl: "https://ia800905.us.archive.org/19/items/FREE_background_music_dls/pocketmenuvariousartists.mp3",
         duration: "28:30",
         category: "Mindset"
       },
@@ -187,7 +187,7 @@ app.post("/api/seed", async (req, res) => {
         description: "What does success really mean in the modern world? Ruben Bergson challenges conventional definitions of achievement and invites us to reconsider our relationship with ambition, work-life balance, and fulfillment. A thought-provoking episode for anyone questioning the traditional ladder of success and searching for a path that truly feels right.",
         host: "Ruben Bergson",
         coverImage: "https://api.dicebear.com/7.x/adventurer/svg?seed=podcaster3",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3",
         duration: "36:10",
         category: "Career"
       },
@@ -196,7 +196,7 @@ app.post("/api/seed", async (req, res) => {
         description: "Your greatest enemy is the ceiling you put on yourself. Maria Vaccaro dives deep into the science of human potential — exploring neuroplasticity, habit formation, and the surprising power of environment design in shaping who you become. A must-listen for anyone ready to level up and break through the invisible barriers holding them back.",
         host: "Maria Vaccaro",
         coverImage: "https://api.dicebear.com/7.x/adventurer/svg?seed=podcaster4",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3",
         duration: "20:00",
         category: "Self-Growth"
       },
@@ -205,7 +205,7 @@ app.post("/api/seed", async (req, res) => {
         description: "As artificial intelligence rapidly reshapes industries, what happens to human creativity? This episode examines the beautiful collaboration between human imagination and machine intelligence. Discover why the future belongs to those who learn to work alongside AI, and how to build skills that remain irreplaceable in an automated world.",
         host: "Aisha Patel",
         coverImage: "https://api.dicebear.com/7.x/adventurer/svg?seed=podcaster5",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3",
         duration: "44:18",
         category: "Technology"
       },
@@ -214,7 +214,7 @@ app.post("/api/seed", async (req, res) => {
         description: "Climate change is the defining challenge of our generation. In this episode, we hear from activists, scientists, and everyday people making a real difference. Discover how individual action, community organizing, and policy advocacy can work together to create the lasting systemic change our planet urgently needs.",
         host: "Priya Sharma",
         coverImage: "https://api.dicebear.com/7.x/adventurer/svg?seed=podcaster6",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3",
         duration: "38:55",
         category: "Environment"
       }
