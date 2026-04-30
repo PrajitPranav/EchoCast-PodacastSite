@@ -106,7 +106,7 @@
     <div class="logo"><i class="fas fa-podcast"></i> EchoCast</div>
     <nav>
       <ul>
-        <li>Episodes</li>
+        <li onclick="location.href='episodes.html'">Episodes</li>
         <li>About Us</li>
         <li>Blog</li>
         <li>Subscribe Pod</li>
@@ -292,6 +292,9 @@
         currentTimeEl.innerText = formatTime(current);
         durationTimeEl.innerText = formatTime(duration);
       }
+      if (audio._epId && Math.floor(current) > 0 && Math.floor(current) % 5 === 0) {
+        localStorage.setItem('playback_' + audio._epId, Math.floor(current));
+      }
     });
 
     progressBar.addEventListener("input", (e) => {
@@ -327,13 +330,12 @@
       document.getElementById("playerTitle").innerText = episode.title;
       document.getElementById("playerHost").innerText = episode.host;
       document.getElementById("playerImg").src = episode.coverImage;
+      audio._epId = episode._id;
       audio.src = episode.audioUrl;
-      
-      // Auto play the audio once loaded
       audio.play().then(() => {
         mainPlayIcon.className = "fas fa-pause";
         mainPlayBtn.classList.add("playing");
-      }).catch(err => console.log("Audio autoplay prevented by browser."));
+      }).catch(() => {});
     };
 
     // Fetch and Display Episodes dynamically from Backend
@@ -361,8 +363,9 @@
             <div class="meta">Duration: ${ep.duration || 'Unknown'}</div>
             <button class="play-btn" title="Play Episode"><i class="fas fa-play"></i></button>
           `;
-          
-          card.addEventListener("click", () => playEpisode(ep));
+          const playBtn = card.querySelector(".play-btn");
+          playBtn.addEventListener("click", (e) => { e.stopPropagation(); playEpisode(ep); });
+          card.addEventListener("click", () => location.href = 'episode.html?id=' + ep._id);
           container.appendChild(card);
         });
 

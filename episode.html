@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EchoCast - Episode</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
+    body { background: linear-gradient(135deg, #2d0b45, #792b73); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+    header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 4rem; position: relative; z-index: 10; }
+    .logo { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+    .logo i { font-size: 1.5rem; }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav ul li { position: relative; cursor: pointer; font-weight: 500; transition: transform 0.3s ease; }
+    nav ul li::after { content: ""; position: absolute; bottom: -6px; left: 50%; width: 0; height: 2px; background: #fff; transition: width 0.3s ease, left 0.3s ease; }
+    nav ul li:hover { transform: scale(1.1); }
+    nav ul li:hover::after { width: 100%; left: 0; }
+    .auth-btns { display: flex; align-items: center; }
+    .auth-btns span { font-weight: 600; font-size: 0.95rem; margin-right: 15px; }
+    .auth-btns button { padding: 0.5rem 1.2rem; border-radius: 20px; border: none; margin-left: 0.5rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
+    .auth-btns .login { background: transparent; border: 1px solid #fff; color: #fff; }
+    .auth-btns .signup { background: #fff; color: #333; }
+    .auth-btns .logout { background: #ff4757; color: #fff; border: 1px solid #ff4757; }
+    .auth-btns button:hover { transform: translateY(-2px); opacity: 0.9; }
+
+    /* Blurred hero banner */
+    .ep-hero { position: relative; width: 100%; min-height: 320px; display: flex; align-items: center; overflow: hidden; padding: 2.5rem 4rem; }
+    .ep-hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(25px) brightness(0.35); transform: scale(1.1); z-index: 0; }
+    .ep-hero-content { position: relative; z-index: 1; display: flex; gap: 2.5rem; align-items: flex-start; width: 100%; }
+    .ep-cover { width: 220px; height: 220px; border-radius: 20px; object-fit: cover; box-shadow: 0 20px 50px rgba(0,0,0,0.5); flex-shrink: 0; }
+    .ep-meta { flex: 1; }
+    .ep-category { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #d4a0d0; margin-bottom: 0.6rem; }
+    .ep-title { font-size: 2.2rem; font-weight: 800; line-height: 1.2; margin-bottom: 0.7rem; }
+    .ep-host { font-size: 1rem; opacity: 0.75; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px; }
+    .ep-duration { font-size: 0.85rem; opacity: 0.55; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 6px; }
+    .ep-date { font-size: 0.8rem; opacity: 0.45; }
+    .back-btn { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 25px; padding: 0.5rem 1.1rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.25s; margin-bottom: 1.2rem; text-decoration: none; }
+    .back-btn:hover { background: rgba(255,255,255,0.22); }
+
+    /* Audio Player */
+    .player-section { padding: 2rem 4rem; }
+    .audio-player { background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 2rem 2.5rem; backdrop-filter: blur(20px); }
+    .player-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .player-title-row span { font-weight: 700; font-size: 1.05rem; opacity: 0.9; }
+    .player-status { font-size: 0.8rem; opacity: 0.5; }
+
+    .progress-wrap { margin-bottom: 0.5rem; }
+    .progress-track { position: relative; height: 6px; background: rgba(255,255,255,0.15); border-radius: 6px; cursor: pointer; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #792b73, #c065bb); border-radius: 6px; width: 0%; pointer-events: none; transition: width 0.1s linear; }
+    .progress-thumb { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; background: #fff; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); left: 0%; transition: left 0.1s linear; cursor: pointer; }
+    .progress-input { position: absolute; inset: -6px 0; opacity: 0; cursor: pointer; width: 100%; }
+    .time-row { display: flex; justify-content: space-between; font-size: 0.82rem; opacity: 0.55; font-variant-numeric: tabular-nums; margin-bottom: 1.5rem; }
+
+    .controls-row { display: flex; align-items: center; gap: 1.5rem; justify-content: center; margin-bottom: 1.5rem; }
+    .ctrl-btn { background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; opacity: 0.6; transition: 0.2s; padding: 0.4rem; }
+    .ctrl-btn:hover { opacity: 1; transform: scale(1.1); }
+    .play-main-btn { width: 62px; height: 62px; background: #fff; color: #2d0b45; border: none; border-radius: 50%; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; box-shadow: 0 8px 24px rgba(0,0,0,0.3); padding-left: 3px; }
+    .play-main-btn.playing { padding-left: 0; }
+    .play-main-btn:hover { transform: scale(1.08); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
+
+    .volume-row { display: flex; align-items: center; gap: 0.8rem; justify-content: flex-end; }
+    .vol-icon { cursor: pointer; opacity: 0.65; transition: opacity 0.2s; font-size: 1rem; }
+    .vol-icon:hover { opacity: 1; }
+    input[type=range].vol-slider { width: 110px; accent-color: rgba(255,255,255,0.8); cursor: pointer; height: 4px; border-radius: 4px; }
+
+    /* Resume Toast */
+    .toast { position: fixed; top: 90px; right: 24px; background: #2d0b45; border: 1px solid rgba(121,43,115,0.6); color: #fff; padding: 0.85rem 1.3rem; border-radius: 14px; font-size: 0.88rem; font-weight: 600; z-index: 9999; display: flex; align-items: center; gap: 0.6rem; box-shadow: 0 8px 28px rgba(0,0,0,0.35); transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .toast.show { transform: translateX(0); }
+    .toast i { color: #c065bb; }
+
+    /* Description */
+    .desc-section { padding: 0 4rem 4rem; }
+    .desc-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 2rem 2.5rem; }
+    .desc-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; opacity: 0.9; }
+    .desc-card p { font-size: 0.95rem; line-height: 1.8; opacity: 0.72; }
+
+    .loading-state { text-align: center; padding: 8rem 2rem; opacity: 0.7; font-size: 1.1rem; }
+    .loading-state i { display: block; font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5; }
+    .error-state { text-align: center; padding: 8rem 2rem; color: #ff6b81; font-size: 1.1rem; }
+
+    audio { display: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo" onclick="location.href='home.html'"><i class="fas fa-podcast"></i> EchoCast</div>
+    <nav>
+      <ul>
+        <li onclick="location.href='home.html'">Home</li>
+        <li onclick="location.href='episodes.html'">Episodes</li>
+        <li>About Us</li>
+        <li>Blog</li>
+      </ul>
+    </nav>
+    <div class="auth-btns" id="authBtns">
+      <button class="login" onclick="location.href='login.html'">Log In</button>
+      <button class="signup" onclick="location.href='login.html'">Sign Up</button>
+    </div>
+  </header>
+
+  <div id="pageContent">
+    <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Loading episode...</div>
+  </div>
+
+  <div class="toast" id="resumeToast"><i class="fas fa-history"></i> <span id="toastMsg">Resuming playback...</span></div>
+
+  <audio id="mainAudio"></audio>
+
+  <script>
+    // Auth
+    const token = localStorage.getItem("token");
+    const username = localStorage.getItem("username");
+    const authBtns = document.getElementById("authBtns");
+    if (token) {
+      authBtns.innerHTML = `<span>Welcome, ${username || 'User'}!</span><button class="logout" id="logoutBtn">Logout</button>`;
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.removeItem("token"); localStorage.removeItem("username"); window.location.reload();
+      });
+    }
+
+    const fmt = (t) => { if (isNaN(t) || t < 0) return "0:00"; const m = Math.floor(t/60), s = Math.floor(t%60); return `${m}:${s<10?'0':''}${s}`; };
+
+    const params = new URLSearchParams(window.location.search);
+    const epId = params.get("id");
+
+    const audio = document.getElementById("mainAudio");
+    let isPlaying = false;
+    let saveInterval = null;
+
+    const showToast = (msg) => {
+      const toast = document.getElementById("resumeToast");
+      document.getElementById("toastMsg").innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3500);
+    };
+
+    const buildPage = (ep) => {
+      const createdDate = ep.createdAt ? new Date(ep.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "";
+      document.title = `EchoCast - ${ep.title}`;
+
+      document.getElementById("pageContent").innerHTML = `
+        <div class="ep-hero">
+          <div class="ep-hero-bg" style="background-image: url('${ep.coverImage}');"></div>
+          <div class="ep-hero-content">
+            <img class="ep-cover" src="${ep.coverImage}" alt="${ep.title}" onerror="this.src='https://cdn.pixabay.com/photo/2016/11/29/04/10/stereo-1866520_1280.jpg'">
+            <div class="ep-meta">
+              <a class="back-btn" href="episodes.html"><i class="fas fa-arrow-left"></i> All Episodes</a>
+              <div class="ep-category"><i class="fas fa-tag"></i> ${ep.category || 'General'}</div>
+              <div class="ep-title">${ep.title}</div>
+              <div class="ep-host"><i class="fas fa-user-circle"></i> ${ep.host}</div>
+              <div class="ep-duration"><i class="fas fa-clock"></i> ${ep.duration || 'Unknown duration'}</div>
+              ${createdDate ? `<div class="ep-date"><i class="far fa-calendar-alt"></i> ${createdDate}</div>` : ""}
+            </div>
+          </div>
+        </div>
+
+        <div class="player-section">
+          <div class="audio-player">
+            <div class="player-title-row">
+              <span><i class="fas fa-music" style="margin-right:6px; opacity:0.6;"></i>${ep.title}</span>
+              <span class="player-status" id="playerStatus">Ready</span>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-track" id="progressTrack">
+                <div class="progress-fill" id="progressFill"></div>
+                <div class="progress-thumb" id="progressThumb"></div>
+                <input type="range" class="progress-input" id="seekBar" min="0" max="100" value="0" step="0.1">
+              </div>
+            </div>
+            <div class="time-row">
+              <span id="currentTime">0:00</span>
+              <span id="durationTime">0:00</span>
+            </div>
+            <div class="controls-row">
+              <button class="ctrl-btn" id="skipBackBtn" title="Skip back 10s"><i class="fas fa-undo-alt"></i><span style="font-size:0.6rem; display:block; margin-top:2px;">10s</span></button>
+              <button class="play-main-btn" id="playBtn"><i class="fas fa-play"></i></button>
+              <button class="ctrl-btn" id="skipFwdBtn" title="Skip forward 10s"><i class="fas fa-redo-alt"></i><span style="font-size:0.6rem; display:block; margin-top:2px;">10s</span></button>
+            </div>
+            <div class="volume-row">
+              <i class="fas fa-volume-up vol-icon" id="volIcon"></i>
+              <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="100">
+            </div>
+          </div>
+        </div>
+
+        <div class="desc-section">
+          <div class="desc-card">
+            <h2><i class="fas fa-align-left" style="margin-right:8px; opacity:0.6;"></i>About This Episode</h2>
+            <p>${ep.description || 'No description available for this episode.'}</p>
+          </div>
+        </div>`;
+
+      initPlayer(ep);
+    };
+
+    const initPlayer = (ep) => {
+      audio.src = ep.audioUrl;
+      audio.preload = "metadata";
+
+      const playBtn = document.getElementById("playBtn");
+      const playIcon = playBtn.querySelector("i");
+      const seekBar = document.getElementById("seekBar");
+      const progressFill = document.getElementById("progressFill");
+      const progressThumb = document.getElementById("progressThumb");
+      const currentTimeEl = document.getElementById("currentTime");
+      const durationTimeEl = document.getElementById("durationTime");
+      const playerStatus = document.getElementById("playerStatus");
+      const volSlider = document.getElementById("volSlider");
+      const volIcon = document.getElementById("volIcon");
+      const skipBack = document.getElementById("skipBackBtn");
+      const skipFwd = document.getElementById("skipFwdBtn");
+
+      const setProgress = (pct) => {
+        progressFill.style.width = pct + "%";
+        progressThumb.style.left = pct + "%";
+        seekBar.value = pct;
+      };
+
+      const updatePlayState = (playing) => {
+        isPlaying = playing;
+        playIcon.className = playing ? "fas fa-pause" : "fas fa-play";
+        playBtn.classList.toggle("playing", playing);
+        playerStatus.innerText = playing ? "Playing" : "Paused";
+      };
+
+      audio.addEventListener("loadedmetadata", () => {
+        durationTimeEl.innerText = fmt(audio.duration);
+        const saved = parseInt(localStorage.getItem("playback_" + ep._id) || "0");
+        if (saved > 5 && saved < audio.duration - 5) {
+          audio.currentTime = saved;
+          showToast(`Resuming from ${fmt(saved)}`);
+        }
+      });
+
+      audio.addEventListener("timeupdate", () => {
+        const cur = audio.currentTime, dur = audio.duration;
+        if (!isNaN(dur) && dur > 0) {
+          const pct = (cur / dur) * 100;
+          setProgress(pct);
+          currentTimeEl.innerText = fmt(cur);
+          durationTimeEl.innerText = fmt(dur);
+          if (Math.floor(cur) > 0 && Math.floor(cur) % 5 === 0) {
+            localStorage.setItem("playback_" + ep._id, Math.floor(cur));
+          }
+        }
+      });
+
+      audio.addEventListener("ended", () => {
+        updatePlayState(false);
+        playerStatus.innerText = "Finished";
+        localStorage.removeItem("playback_" + ep._id);
+        setProgress(0);
+        currentTimeEl.innerText = "0:00";
+      });
+
+      audio.addEventListener("waiting", () => { playerStatus.innerText = "Buffering..."; });
+      audio.addEventListener("canplay", () => { if (!isPlaying) playerStatus.innerText = "Ready"; });
+
+      playBtn.addEventListener("click", () => {
+        if (audio.paused) { audio.play().then(() => updatePlayState(true)).catch(() => {}); }
+        else { audio.pause(); updatePlayState(false); }
+      });
+
+      seekBar.addEventListener("input", (e) => {
+        if (!isNaN(audio.duration)) {
+          const t = (e.target.value / 100) * audio.duration;
+          audio.currentTime = t;
+          setProgress(parseFloat(e.target.value));
+          currentTimeEl.innerText = fmt(t);
+        }
+      });
+
+      skipBack.addEventListener("click", () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
+      skipFwd.addEventListener("click", () => { audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); });
+
+      volSlider.addEventListener("input", (e) => {
+        audio.volume = e.target.value / 100;
+        volIcon.className = audio.volume === 0 ? "fas fa-volume-mute vol-icon" : audio.volume < 0.5 ? "fas fa-volume-down vol-icon" : "fas fa-volume-up vol-icon";
+      });
+      volIcon.addEventListener("click", () => {
+        if (audio.volume > 0) { audio._pv = audio.volume; audio.volume = 0; volSlider.value = 0; volIcon.className = "fas fa-volume-mute vol-icon"; }
+        else { audio.volume = audio._pv || 1; volSlider.value = audio.volume * 100; volIcon.className = "fas fa-volume-up vol-icon"; }
+      });
+    };
+
+    const loadEpisode = async () => {
+      if (!epId) {
+        document.getElementById("pageContent").innerHTML = '<div class="error-state"><i class="fas fa-exclamation-triangle"></i><br>No episode ID provided. <a href="episodes.html" style="color:#c065bb;">← Browse Episodes</a></div>';
+        return;
+      }
+      try {
+        const res = await fetch("/api/episodes/" + epId);
+        if (!res.ok) throw new Error("not found");
+        const ep = await res.json();
+        buildPage(ep);
+      } catch (err) {
+        document.getElementById("pageContent").innerHTML = '<div class="error-state"><i class="fas fa-exclamation-triangle"></i><br>Episode not found. <a href="episodes.html" style="color:#c065bb;">← Browse Episodes</a></div>';
+      }
+    };
+
+    loadEpisode();
+  </script>
+</body>
+</html>

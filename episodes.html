@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EchoCast - All Episodes</title>
+  <meta name="description" content="Browse all EchoCast podcast episodes. Play, explore and discover stories that matter." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
+    body { background: linear-gradient(135deg, #2d0b45, #792b73); color: #fff; min-height: 100vh; overflow-x: hidden; padding-bottom: 100px; }
+
+    header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 4rem; }
+    .logo { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+    .logo i { font-size: 1.5rem; }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav ul li { position: relative; cursor: pointer; font-weight: 500; transition: transform 0.3s ease; }
+    nav ul li::after { content: ""; position: absolute; bottom: -6px; left: 50%; width: 0; height: 2px; background: #fff; transition: width 0.3s ease, left 0.3s ease; }
+    nav ul li:hover { transform: scale(1.1); }
+    nav ul li:hover::after { width: 100%; left: 0; }
+    nav ul li.active-nav::after { width: 100%; left: 0; }
+    .auth-btns { display: flex; align-items: center; }
+    .auth-btns span { font-weight: 600; font-size: 0.95rem; margin-right: 15px; }
+    .auth-btns button { padding: 0.5rem 1.2rem; border-radius: 20px; border: none; margin-left: 0.5rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
+    .auth-btns .login { background: transparent; border: 1px solid #fff; color: #fff; }
+    .auth-btns .signup { background: #fff; color: #333; }
+    .auth-btns .logout { background: #ff4757; color: #fff; border: 1px solid #ff4757; }
+    .auth-btns button:hover { transform: translateY(-2px); opacity: 0.9; }
+
+    .page-header { padding: 2.5rem 4rem 1.5rem; }
+    .page-header h1 { font-size: 2.6rem; font-weight: 800; display: flex; align-items: center; gap: 1rem; }
+    .page-header p { margin-top: 0.5rem; font-size: 1rem; opacity: 0.75; }
+
+    .episodes-wrap { padding: 1rem 4rem 3rem; }
+    .episodes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+
+    .ep-card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease; cursor: pointer; display: flex; flex-direction: column; }
+    .ep-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.35); background: rgba(255,255,255,0.13); }
+    .ep-card-img { position: relative; overflow: hidden; }
+    .ep-card-img img { width: 100%; height: 190px; object-fit: cover; display: block; transition: transform 0.4s ease; }
+    .ep-card:hover .ep-card-img img { transform: scale(1.04); }
+    .resume-badge { position: absolute; top: 10px; right: 10px; background: rgba(121,43,115,0.92); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; backdrop-filter: blur(6px); }
+    .cat-badge { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px; backdrop-filter: blur(6px); }
+
+    .ep-card-body { padding: 1.2rem 1.2rem 1rem; flex: 1; display: flex; flex-direction: column; }
+    .ep-card-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.35rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+    .ep-card-host { font-size: 0.82rem; opacity: 0.65; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 5px; }
+    .ep-card-desc { font-size: 0.8rem; opacity: 0.6; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; margin-bottom: 0.9rem; }
+    .ep-card-meta { font-size: 0.76rem; opacity: 0.5; margin-bottom: 1rem; display: flex; align-items: center; gap: 6px; }
+    .ep-card-actions { display: flex; gap: 0.6rem; }
+    .btn-details { flex: 1; padding: 0.55rem 0.8rem; background: transparent; border: 1px solid rgba(255,255,255,0.35); color: #fff; border-radius: 25px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: 0.25s; text-align: center; }
+    .btn-details:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.6); }
+    .btn-play { flex: 1; padding: 0.55rem 0.8rem; background: #fff; color: #2d0b45; border: none; border-radius: 25px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: 0.25s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .btn-play:hover { background: #ede0ff; transform: scale(1.03); }
+    .btn-play.playing-now { background: #792b73; color: #fff; }
+
+    .global-player { position: fixed; bottom: 0; left: 0; width: 100%; height: 90px; background: rgba(20,20,20,0.96); backdrop-filter: blur(15px); display: flex; justify-content: space-between; align-items: center; padding: 0 3rem; color: white; z-index: 1000; border-top: 1px solid rgba(255,255,255,0.1); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .global-player.active { transform: translateY(0); }
+    .player-info { display: flex; align-items: center; gap: 1rem; width: 300px; }
+    .player-info img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+    .player-info strong { font-size: 1rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 200px; }
+    .player-info small { color: #ccc; font-size: 0.82rem; }
+    .player-controls { flex: 1; display: flex; align-items: center; gap: 1.5rem; justify-content: center; max-width: 600px; }
+    .player-controls .play-btn { background: #fff; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 1.3rem; cursor: pointer; transition: 0.3s; color: #000; display: flex; align-items: center; justify-content: center; padding-left: 3px; }
+    .player-controls .play-btn.playing { padding-left: 0; }
+    .player-controls .play-btn:hover { transform: scale(1.1); box-shadow: 0 0 15px rgba(255,255,255,0.4); }
+    .player-controls input[type=range] { flex: 1; accent-color: #792b73; cursor: pointer; height: 5px; border-radius: 5px; }
+    .player-controls span { font-size: 0.85rem; color: #bbb; min-width: 45px; text-align: center; font-variant-numeric: tabular-nums; }
+    .player-volume { display: flex; align-items: center; gap: 0.8rem; width: 200px; justify-content: flex-end; }
+    .player-volume input[type=range] { width: 100px; accent-color: #fff; cursor: pointer; height: 5px; border-radius: 5px; }
+
+    .state-msg { text-align: center; padding: 5rem 2rem; font-size: 1.1rem; opacity: 0.7; grid-column: 1 / -1; }
+    .state-msg i { display: block; font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5; }
+    .error-msg { color: #ff6b81; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" onclick="location.href='home.html'"><i class="fas fa-podcast"></i> EchoCast</div>
+    <nav>
+      <ul>
+        <li onclick="location.href='home.html'">Home</li>
+        <li class="active-nav" onclick="location.href='episodes.html'">Episodes</li>
+        <li>About Us</li>
+        <li>Blog</li>
+      </ul>
+    </nav>
+    <div class="auth-btns" id="authBtns">
+      <button class="login" onclick="location.href='login.html'">Log In</button>
+      <button class="signup" onclick="location.href='login.html'">Sign Up</button>
+    </div>
+  </header>
+
+  <div class="page-header">
+    <h1><i class="fas fa-headphones-alt"></i> All Episodes</h1>
+    <p>Explore our full library — click any card to view details, or hit Play to listen instantly.</p>
+  </div>
+
+  <div class="episodes-wrap">
+    <div class="episodes-grid" id="episodesGrid">
+      <div class="state-msg"><i class="fas fa-spinner fa-spin"></i> Loading episodes...</div>
+    </div>
+  </div>
+
+  <div class="global-player" id="globalPlayer">
+    <div class="player-info">
+      <img id="playerImg" src="https://via.placeholder.com/60" alt="Cover" />
+      <div>
+        <strong id="playerTitle">Select an episode</strong>
+        <small id="playerHost">Host</small>
+      </div>
+    </div>
+    <div class="player-controls">
+      <button class="play-btn" id="mainPlayBtn"><i class="fas fa-play"></i></button>
+      <span id="currentTime">0:00</span>
+      <input type="range" id="progressBar" value="0" step="1" min="0" max="100" />
+      <span id="durationTime">0:00</span>
+    </div>
+    <div class="player-volume">
+      <i class="fas fa-volume-up" id="muteIcon" style="cursor:pointer;"></i>
+      <input type="range" id="volumeBar" value="100" min="0" max="100" />
+    </div>
+    <audio id="mainAudio"></audio>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const username = localStorage.getItem("username");
+    const authBtns = document.getElementById("authBtns");
+    if (token) {
+      authBtns.innerHTML = `<span>Welcome, ${username || 'User'}!</span><button class="logout" id="logoutBtn">Logout</button>`;
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        window.location.reload();
+      });
+    }
+
+    const globalPlayer = document.getElementById("globalPlayer");
+    const audio = document.getElementById("mainAudio");
+    const mainPlayBtn = document.getElementById("mainPlayBtn");
+    const mainPlayIcon = mainPlayBtn.querySelector("i");
+    const progressBar = document.getElementById("progressBar");
+    const volumeBar = document.getElementById("volumeBar");
+    const muteIcon = document.getElementById("muteIcon");
+    const currentTimeEl = document.getElementById("currentTime");
+    const durationTimeEl = document.getElementById("durationTime");
+
+    const fmt = (t) => { if (isNaN(t)) return "0:00"; const m = Math.floor(t/60), s = Math.floor(t%60); return `${m}:${s<10?'0':''}${s}`; };
+
+    mainPlayBtn.addEventListener("click", () => {
+      if (audio.paused) { audio.play(); mainPlayIcon.className = "fas fa-pause"; mainPlayBtn.classList.add("playing"); }
+      else { audio.pause(); mainPlayIcon.className = "fas fa-play"; mainPlayBtn.classList.remove("playing"); }
+    });
+
+    audio.addEventListener("timeupdate", () => {
+      const cur = audio.currentTime, dur = audio.duration;
+      if (!isNaN(dur)) { progressBar.value = (cur/dur)*100; currentTimeEl.innerText = fmt(cur); durationTimeEl.innerText = fmt(dur); }
+      if (audio._epId && Math.floor(cur) > 0 && Math.floor(cur) % 5 === 0) {
+        localStorage.setItem("playback_" + audio._epId, Math.floor(cur));
+      }
+    });
+
+    audio.addEventListener("ended", () => { mainPlayIcon.className = "fas fa-play"; mainPlayBtn.classList.remove("playing"); });
+
+    progressBar.addEventListener("input", (e) => { if (!isNaN(audio.duration)) audio.currentTime = (e.target.value/100) * audio.duration; });
+    volumeBar.addEventListener("input", (e) => {
+      audio.volume = e.target.value/100;
+      muteIcon.className = audio.volume === 0 ? "fas fa-volume-mute" : audio.volume < 0.5 ? "fas fa-volume-down" : "fas fa-volume-up";
+    });
+    muteIcon.addEventListener("click", () => {
+      if (audio.volume > 0) { audio.dataset.prevVol = audio.volume; audio.volume = 0; volumeBar.value = 0; muteIcon.className = "fas fa-volume-mute"; }
+      else { audio.volume = audio.dataset.prevVol || 1; volumeBar.value = audio.volume * 100; muteIcon.className = "fas fa-volume-up"; }
+    });
+
+    let activeBtnRef = null;
+    const playEpisode = (ep) => {
+      globalPlayer.classList.add("active");
+      document.getElementById("playerTitle").innerText = ep.title;
+      document.getElementById("playerHost").innerText = ep.host;
+      document.getElementById("playerImg").src = ep.coverImage;
+      audio._epId = ep._id;
+      audio.src = ep.audioUrl;
+      audio.play().then(() => { mainPlayIcon.className = "fas fa-pause"; mainPlayBtn.classList.add("playing"); }).catch(() => {});
+      if (activeBtnRef) { activeBtnRef.innerHTML = '<i class="fas fa-play"></i> Play'; activeBtnRef.classList.remove("playing-now"); }
+    };
+
+    const fetchEpisodes = async () => {
+      const grid = document.getElementById("episodesGrid");
+      try {
+        const res = await fetch("/api/episodes");
+        if (!res.ok) throw new Error("fetch failed");
+        const episodes = await res.json();
+        grid.innerHTML = "";
+        if (episodes.length === 0) {
+          grid.innerHTML = '<div class="state-msg"><i class="fas fa-inbox"></i>No episodes yet. Run POST /api/seed to populate.</div>';
+          return;
+        }
+        episodes.forEach(ep => {
+          const saved = localStorage.getItem("playback_" + ep._id);
+          const resumeStr = saved ? `<div class="resume-badge"><i class="fas fa-history"></i> Resume ${fmt(parseInt(saved))}</div>` : "";
+          const card = document.createElement("div");
+          card.className = "ep-card";
+          card.innerHTML = `
+            <div class="ep-card-img">
+              <img src="${ep.coverImage}" alt="${ep.title}" onerror="this.src='https://cdn.pixabay.com/photo/2016/11/29/04/10/stereo-1866520_1280.jpg'">
+              <div class="cat-badge">${ep.category || 'General'}</div>
+              ${resumeStr}
+            </div>
+            <div class="ep-card-body">
+              <div class="ep-card-title">${ep.title}</div>
+              <div class="ep-card-host"><i class="fas fa-user-circle"></i> ${ep.host}</div>
+              <div class="ep-card-desc">${ep.description || ''}</div>
+              <div class="ep-card-meta"><i class="fas fa-clock"></i> ${ep.duration || 'Unknown'}</div>
+              <div class="ep-card-actions">
+                <button class="btn-details" data-id="${ep._id}">View Details</button>
+                <button class="btn-play" data-id="${ep._id}"><i class="fas fa-play"></i> Play</button>
+              </div>
+            </div>`;
+          card.querySelector(".btn-details").addEventListener("click", (e) => { e.stopPropagation(); location.href = "episode.html?id=" + ep._id; });
+          const playBtn = card.querySelector(".btn-play");
+          playBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            playEpisode(ep);
+            if (activeBtnRef && activeBtnRef !== playBtn) { activeBtnRef.innerHTML = '<i class="fas fa-play"></i> Play'; activeBtnRef.classList.remove("playing-now"); }
+            playBtn.innerHTML = '<i class="fas fa-pause"></i> Playing';
+            playBtn.classList.add("playing-now");
+            activeBtnRef = playBtn;
+          });
+          card.addEventListener("click", () => location.href = "episode.html?id=" + ep._id);
+          grid.appendChild(card);
+        });
+      } catch (err) {
+        grid.innerHTML = '<div class="state-msg error-msg"><i class="fas fa-exclamation-triangle"></i>Failed to load episodes. Is the server running?</div>';
+      }
+    };
+
+    fetchEpisodes();
+  </script>
+</body>
+</html>
