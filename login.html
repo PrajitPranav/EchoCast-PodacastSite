@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pinterest Style UI</title>
+  <title>EchoCast - Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Raleway:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * {
@@ -291,7 +291,7 @@
 
   <!-- References -->
   <div class="references">
-    <span>World<br>of Podcasts</span>
+    <span>EchoCast<br>Podcast</span>
     <button>Discover</button>
   </div>
 
@@ -389,7 +389,14 @@
       });
 
       const result = await res.json();
-      alert(result.message);
+      if (res.ok && result.token) {
+        localStorage.setItem("token", result.token);
+        if (result.username) localStorage.setItem("username", result.username);
+        alert(result.message);
+        window.location.href = "home.html";
+      } else {
+        alert(result.message || "Failed to authenticate");
+      }
     } catch (err) {
       console.error(err);
       alert("Something went wrong. Check server!");
