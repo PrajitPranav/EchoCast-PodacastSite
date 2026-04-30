@@ -47,7 +47,7 @@
     .player-title-row span { font-weight: 700; font-size: 1.05rem; opacity: 0.9; }
     .player-status { font-size: 0.8rem; opacity: 0.5; }
 
-    .progress-wrap { margin-bottom: 0.5rem; position: relative; padding-top: 48px; }
+    .progress-wrap { margin-bottom: 0.5rem; }
     .progress-track { position: relative; height: 6px; background: rgba(255,255,255,0.15); border-radius: 6px; cursor: pointer; }
     .progress-fill { height: 100%; background: linear-gradient(90deg, #792b73, #c065bb); border-radius: 6px; width: 0%; pointer-events: none; transition: width 0.1s linear; }
     .progress-thumb { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; background: #fff; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); left: 0%; transition: left 0.1s linear; cursor: pointer; }
@@ -97,26 +97,29 @@
     /* === Emoji Reaction Markers === */
     .rxn-emoji-marker {
       position: absolute;
-      transform: translateX(-50%);
-      font-size: 1.15rem;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1rem;
       line-height: 1;
       cursor: pointer;
       user-select: none;
-      z-index: 10;
+      z-index: 8;
       pointer-events: all;
-      animation: rxnPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.4) both;
+      filter: drop-shadow(0 1px 4px rgba(0,0,0,0.6));
+      animation: rxnPop 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.4) both;
     }
-    .rxn-emoji-marker.lvl-0 { bottom: calc(100% + 5px); }
-    .rxn-emoji-marker.lvl-1 { bottom: calc(100% + 23px); }
-    .rxn-emoji-marker.lvl-2 { bottom: calc(100% + 41px); }
-    .rxn-emoji-marker:hover { transform: translateX(-50%) scale(1.5); z-index: 20; transition: transform 0.15s; }
+    .rxn-emoji-marker:hover {
+      transform: translate(-50%, -50%) scale(1.45);
+      z-index: 20;
+      transition: transform 0.15s ease;
+    }
     .rxn-emoji-marker::after {
       content: attr(data-tip);
       position: absolute;
-      bottom: 130%;
+      bottom: 160%;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(10,10,20,0.9);
+      background: rgba(10,10,20,0.92);
       color: #fff;
       font-size: 0.68rem;
       white-space: nowrap;
@@ -125,13 +128,13 @@
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.18s;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.12);
     }
     .rxn-emoji-marker:hover::after { opacity: 1; }
     @keyframes rxnPop {
-      0%   { transform: translateX(-50%) scale(0); opacity: 0; }
-      65%  { transform: translateX(-50%) scale(1.3); opacity: 1; }
-      100% { transform: translateX(-50%) scale(1); opacity: 1; }
+      0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      65%  { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
     }
 
     /* === Phase 3: Insight Mode === */
@@ -430,34 +433,33 @@
       const layer = document.getElementById("rxnMarkersLayer");
       if (!layer || !duration || isNaN(duration)) return;
       layer.innerHTML = "";
-      // Group by 3-second buckets, preserve individual reactions for stacking
+      // Group by 3-second buckets, pick dominant emoji per bucket
       const groups = {};
       reactions.forEach(r => {
         const key = Math.round(r.timestamp / 3) * 3;
-        if (!groups[key]) groups[key] = [];
-        groups[key].push(r);
+        if (!groups[key]) groups[key] = { counts: {}, ts: parseInt(r.timestamp) };
+        groups[key].counts[r.reactionType] = (groups[key].counts[r.reactionType] || 0) + 1;
       });
-      Object.entries(groups).forEach(([ts, rxns]) => {
-        const pct = (parseInt(ts) / duration) * 100;
+      const LABELS = { fire: "Interesting", funny: "Funny", mindblowing: "Mind-blowing", relatable: "Relatable" };
+      Object.entries(groups).forEach(([ts, { counts, ts: rawTs }]) => {
+        const pct = (rawTs / duration) * 100;
         if (pct < 0 || pct > 100) return;
-        const timestamp = parseInt(ts);
-        // Show up to 3 emojis per bucket, stacked vertically
-        rxns.slice(0, 3).forEach((r, lvl) => {
-          const emoji = EMOJI_MAP[r.reactionType] || "⚡";
-          const label = { fire: "Interesting", funny: "Funny", mindblowing: "Mind-blowing", relatable: "Relatable" }[r.reactionType] || r.reactionType;
-          const span = document.createElement("span");
-          span.className = `rxn-emoji-marker lvl-${lvl}`;
-          span.textContent = emoji;
-          span.setAttribute("data-tip", `${emoji} ${label} · ${fmt(timestamp)}`);
-          span.style.left = pct + "%";
-          span.title = "";
-          span.addEventListener("click", (e) => {
-            e.stopPropagation();
-            audio.currentTime = timestamp;
-            if (audio.paused) audio.play();
-          });
-          layer.appendChild(span);
+        const topType = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+        const total = Object.values(counts).reduce((s, c) => s + c, 0);
+        const emoji = EMOJI_MAP[topType] || "⚡";
+        const tipExtra = total > 1 ? ` +${total - 1} more` : "";
+        const tip = `${emoji} ${LABELS[topType]}${tipExtra} · ${fmt(rawTs)}`;
+        const span = document.createElement("span");
+        span.className = "rxn-emoji-marker";
+        span.textContent = emoji;
+        span.setAttribute("data-tip", tip);
+        span.style.left = pct + "%";
+        span.addEventListener("click", (e) => {
+          e.stopPropagation();
+          audio.currentTime = rawTs;
+          if (audio.paused) audio.play();
         });
+        layer.appendChild(span);
       });
     };
 
