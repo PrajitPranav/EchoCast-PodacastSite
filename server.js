@@ -36,6 +36,25 @@ const episodeSchema = new mongoose.Schema({
 });
 const Episode = mongoose.model("Episode", episodeSchema);
 
+const reactionSchema = new mongoose.Schema({
+  episodeId: { type: mongoose.Schema.Types.ObjectId, ref: "Episode", required: true },
+  userId: { type: String, default: "anonymous" },
+  reactionType: { type: String, required: true, enum: ["fire", "funny", "mindblowing", "relatable"] },
+  timestamp: { type: Number, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+const Reaction = mongoose.model("Reaction", reactionSchema);
+
+const insightSchema = new mongoose.Schema({
+  episodeId: { type: mongoose.Schema.Types.ObjectId, ref: "Episode", required: true },
+  userId: { type: String, default: "anonymous" },
+  timestamp: { type: Number, required: true },
+  text: { type: String, required: true, maxlength: 500 },
+  visibility: { type: String, enum: ["public", "private"], default: "public" },
+  createdAt: { type: Date, default: Date.now }
+});
+const Insight = mongoose.model("Insight", insightSchema);
+
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretpodcastkey";
 
 app.post("/signup", async (req, res) => {
@@ -93,6 +112,51 @@ app.post("/api/episodes", async (req, res) => {
     res.status(201).json({ message: "Episode created!", episode });
   } catch (err) {
     res.status(500).json({ message: "Server error creating episode", error: err.message });
+  }
+});
+
+app.post("/api/reactions", async (req, res) => {
+  try {
+    const { episodeId, reactionType, timestamp, userId } = req.body;
+    const reaction = new Reaction({ episodeId, reactionType, timestamp: Math.floor(timestamp || 0), userId: userId || "anonymous" });
+    await reaction.save();
+    res.status(201).json({ message: "Reaction saved!", reaction });
+  } catch (err) {
+    res.status(500).json({ message: "Error saving reaction", error: err.message });
+  }
+});
+
+app.get("/api/reactions/:episodeId", async (req, res) => {
+  try {
+    const reactions = await Reaction.find({ episodeId: req.params.episodeId }).sort({ timestamp: 1 });
+    res.json(reactions);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching reactions", error: err.message });
+  }
+});
+
+app.post("/api/insights", async (req, res) => {
+  try {
+    const { episodeId, timestamp, text, visibility, userId } = req.body;
+    if (!text || !text.trim()) return res.status(400).json({ message: "Insight text is required" });
+    const insight = new Insight({ episodeId, timestamp: Math.floor(timestamp || 0), text: text.trim(), visibility: visibility || "public", userId: userId || "anonymous" });
+    await insight.save();
+    res.status(201).json({ message: "Insight saved!", insight });
+  } catch (err) {
+    res.status(500).json({ message: "Error saving insight", error: err.message });
+  }
+});
+
+app.get("/api/insights/:episodeId", async (req, res) => {
+  try {
+    const userId = req.query.userId || "anonymous";
+    const insights = await Insight.find({
+      episodeId: req.params.episodeId,
+      $or: [{ visibility: "public" }, { userId }]
+    }).sort({ timestamp: 1 });
+    res.json(insights);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching insights", error: err.message });
   }
 });
 

@@ -82,6 +82,51 @@
     .error-state { text-align: center; padding: 8rem 2rem; color: #ff6b81; font-size: 1.1rem; }
 
     audio { display: none; }
+
+    /* === Phase 3: Moment Reactions === */
+    .reactions-section { padding: 0 4rem 1.5rem; }
+    .reactions-card { background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 1.4rem 2rem; backdrop-filter: blur(10px); }
+    .reactions-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .reactions-header h3 { font-size: 0.95rem; font-weight: 700; opacity: 0.88; display: flex; align-items: center; gap: 6px; }
+    .rxn-time-badge { font-size: 0.75rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); padding: 3px 10px; border-radius: 20px; opacity: 0.7; font-variant-numeric: tabular-nums; }
+    .reaction-btns { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .rxn-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); color: #fff; border-radius: 25px; padding: 0.45rem 1rem; font-size: 0.82rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+    .rxn-btn:hover { background: rgba(255,255,255,0.16); transform: translateY(-2px); }
+    .rxn-btn:active { transform: scale(0.95); }
+    .rxn-btn.flash { background: rgba(121,43,115,0.5); border-color: #c065bb; }
+    /* Reaction markers on the seek bar */
+    .rxn-marker { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; border-radius: 50%; cursor: pointer; z-index: 5; transition: transform 0.15s; pointer-events: all; }
+    .rxn-marker:hover { transform: translate(-50%, -50%) scale(2); z-index: 15; }
+    .rxn-marker[data-type="fire"] { background: #ff6b35; box-shadow: 0 0 4px #ff6b35; }
+    .rxn-marker[data-type="funny"] { background: #ffd93d; box-shadow: 0 0 4px #ffd93d; }
+    .rxn-marker[data-type="mindblowing"] { background: #c77dff; box-shadow: 0 0 4px #c77dff; }
+    .rxn-marker[data-type="relatable"] { background: #ff6b81; box-shadow: 0 0 4px #ff6b81; }
+    .rxn-marker .rxn-tip { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.88); color: #fff; font-size: 0.7rem; white-space: nowrap; padding: 3px 8px; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 0.18s; }
+    .rxn-marker:hover .rxn-tip { opacity: 1; }
+
+    /* === Phase 3: Insight Mode === */
+    .insights-section { padding: 0 4rem 2rem; }
+    .insights-card { background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 1.4rem 2rem; backdrop-filter: blur(10px); }
+    .insights-card h3 { font-size: 0.95rem; font-weight: 700; opacity: 0.88; margin-bottom: 1rem; display: flex; align-items: center; gap: 6px; }
+    .insight-form-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+    .insight-ts-label { font-size: 0.76rem; opacity: 0.6; font-variant-numeric: tabular-nums; }
+    .vis-toggle { display: flex; gap: 0.4rem; }
+    .vis-btn { background: transparent; border: 1px solid rgba(255,255,255,0.18); color: #fff; border-radius: 20px; padding: 3px 11px; font-size: 0.72rem; cursor: pointer; transition: 0.2s; }
+    .vis-btn.active { background: rgba(121,43,115,0.45); border-color: #c065bb; }
+    #insightText { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; color: #fff; padding: 0.75rem 1rem; font-size: 0.85rem; font-family: inherit; resize: vertical; min-height: 74px; outline: none; transition: border 0.2s; }
+    #insightText:focus { border-color: rgba(192,101,187,0.55); }
+    #insightText::placeholder { opacity: 0.35; }
+    #saveInsightBtn { margin-top: 0.65rem; background: linear-gradient(135deg,#792b73,#9b3a94); border: none; color: #fff; border-radius: 25px; padding: 0.52rem 1.4rem; font-size: 0.83rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    #saveInsightBtn:hover { opacity: 0.9; transform: scale(1.03); }
+    .insights-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 1rem 0; }
+    .insight-item { display: flex; gap: 0.8rem; align-items: flex-start; padding: 0.65rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .insight-item:last-child { border-bottom: none; }
+    .insight-jump-btn { background: rgba(121,43,115,0.28); border: 1px solid rgba(192,101,187,0.35); color: #c065bb; border-radius: 20px; padding: 3px 9px; font-size: 0.72rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .insight-jump-btn:hover { background: rgba(121,43,115,0.55); }
+    .insight-body { flex: 1; }
+    .insight-body p { font-size: 0.83rem; opacity: 0.72; line-height: 1.5; }
+    .insight-private-tag { font-size: 0.65rem; opacity: 0.4; margin-left: 4px; }
+    .no-insights { text-align: center; opacity: 0.38; font-size: 0.83rem; padding: 0.8rem 0; }
   </style>
 </head>
 <body>
@@ -168,6 +213,7 @@
               <div class="progress-track" id="progressTrack">
                 <div class="progress-fill" id="progressFill"></div>
                 <div class="progress-thumb" id="progressThumb"></div>
+                <div id="rxnMarkersLayer" style="position:absolute;inset:0;pointer-events:none;"></div>
                 <input type="range" class="progress-input" id="seekBar" min="0" max="100" value="0" step="0.1">
               </div>
             </div>
@@ -184,6 +230,40 @@
               <i class="fas fa-volume-up vol-icon" id="volIcon"></i>
               <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="100">
             </div>
+          </div>
+        </div>
+
+        </div>
+
+        <div class="reactions-section">
+          <div class="reactions-card">
+            <div class="reactions-header">
+              <h3>⚡ React to This Moment</h3>
+              <span class="rxn-time-badge" id="rxnTimeBadge">at 0:00</span>
+            </div>
+            <div class="reaction-btns">
+              <button class="rxn-btn" data-type="fire">🔥 Interesting</button>
+              <button class="rxn-btn" data-type="funny">😂 Funny</button>
+              <button class="rxn-btn" data-type="mindblowing">🤯 Mind-blowing</button>
+              <button class="rxn-btn" data-type="relatable">❤️ Relatable</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="insights-section">
+          <div class="insights-card">
+            <h3>💡 Insight Mode</h3>
+            <div class="insight-form-top">
+              <span class="insight-ts-label" id="insightTsBadge">📍 Capturing at 0:00</span>
+              <div class="vis-toggle">
+                <button class="vis-btn active" id="visPub">🌍 Public</button>
+                <button class="vis-btn" id="visPriv">🔒 Private</button>
+              </div>
+            </div>
+            <textarea id="insightText" placeholder="Write your thought at this moment..."></textarea>
+            <button id="saveInsightBtn">Save Insight</button>
+            <div class="insights-divider"></div>
+            <div id="insightsList"><div class="no-insights">No insights yet. Be the first!</div></div>
           </div>
         </div>
 
@@ -284,6 +364,147 @@
       volIcon.addEventListener("click", () => {
         if (audio.volume > 0) { audio._pv = audio.volume; audio.volume = 0; volSlider.value = 0; volIcon.className = "fas fa-volume-mute vol-icon"; }
         else { audio.volume = audio._pv || 1; volSlider.value = audio.volume * 100; volIcon.className = "fas fa-volume-up vol-icon"; }
+      });
+
+      // Update reaction and insight time badges as audio plays
+      audio.addEventListener("timeupdate", () => {
+        const t = fmt(audio.currentTime);
+        const rxnBadge = document.getElementById("rxnTimeBadge");
+        const insBadge = document.getElementById("insightTsBadge");
+        if (rxnBadge) rxnBadge.innerText = "at " + t;
+        if (insBadge) insBadge.innerText = "📍 Capturing at " + t;
+      }, { passive: true });
+
+      initReactions(ep, audio);
+      initInsights(ep, audio);
+    };
+
+    const EMOJI_MAP = { fire: "🔥", funny: "😂", mindblowing: "🤯", relatable: "❤️" };
+
+    const renderReactionMarkers = (reactions, duration) => {
+      const layer = document.getElementById("rxnMarkersLayer");
+      if (!layer || !duration || isNaN(duration)) return;
+      layer.style.pointerEvents = "all";
+      layer.innerHTML = "";
+      // Group reactions by rounded timestamp (within 3 seconds)
+      const groups = {};
+      reactions.forEach(r => {
+        const key = Math.round(r.timestamp / 3) * 3;
+        if (!groups[key]) groups[key] = {};
+        groups[key][r.reactionType] = (groups[key][r.reactionType] || 0) + 1;
+      });
+      Object.entries(groups).forEach(([ts, counts]) => {
+        const pct = (parseInt(ts) / duration) * 100;
+        if (pct < 0 || pct > 100) return;
+        const topType = Object.entries(counts).sort((a,b) => b[1]-a[1])[0][0];
+        const tipLines = Object.entries(counts).map(([t,c]) => EMOJI_MAP[t] + " x" + c).join(" · ");
+        const dot = document.createElement("div");
+        dot.className = "rxn-marker";
+        dot.setAttribute("data-type", topType);
+        dot.style.left = pct + "%";
+        dot.innerHTML = `<span class="rxn-tip">${fmt(parseInt(ts))} · ${tipLines}</span>`;
+        layer.appendChild(dot);
+      });
+    };
+
+    const initReactions = async (ep, audio) => {
+      let reactions = [];
+      try {
+        const res = await fetch("http://localhost:3000/api/reactions/" + ep._id);
+        reactions = await res.json();
+      } catch(e) {}
+
+      // Render markers once duration is known
+      const tryRender = () => { if (!isNaN(audio.duration) && audio.duration > 0) renderReactionMarkers(reactions, audio.duration); };
+      audio.addEventListener("loadedmetadata", tryRender);
+      tryRender();
+
+      document.querySelectorAll(".rxn-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const type = btn.getAttribute("data-type");
+          const ts = Math.floor(audio.currentTime);
+          const uid = localStorage.getItem("username") || "anonymous";
+          btn.classList.add("flash");
+          setTimeout(() => btn.classList.remove("flash"), 600);
+          try {
+            await fetch("http://localhost:3000/api/reactions", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ episodeId: ep._id, reactionType: type, timestamp: ts, userId: uid })
+            });
+            reactions.push({ reactionType: type, timestamp: ts });
+            renderReactionMarkers(reactions, audio.duration);
+          } catch(e) {}
+        });
+      });
+    };
+
+    const renderInsightsList = (insights, audio) => {
+      const list = document.getElementById("insightsList");
+      if (!list) return;
+      const uid = localStorage.getItem("username") || "anonymous";
+      const visible = insights.filter(i => i.visibility === "public" || i.userId === uid);
+      if (visible.length === 0) { list.innerHTML = '<div class="no-insights">No insights yet. Be the first!</div>'; return; }
+      list.innerHTML = visible.map(i => `
+        <div class="insight-item">
+          <button class="insight-jump-btn" data-ts="${i.timestamp}">${fmt(i.timestamp)}</button>
+          <div class="insight-body">
+            <p>${i.text}${i.visibility === "private" ? '<span class="insight-private-tag">🔒 private</span>' : ""}</p>
+          </div>
+        </div>`).join("");
+      list.querySelectorAll(".insight-jump-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const t = parseInt(btn.getAttribute("data-ts"));
+          audio.currentTime = t;
+          if (audio.paused) audio.play();
+          window.scrollTo({ top: document.getElementById("progressTrack")?.getBoundingClientRect().top + window.scrollY - 100, behavior: "smooth" });
+        });
+      });
+    };
+
+    const initInsights = async (ep, audio) => {
+      let insights = [];
+      const uid = localStorage.getItem("username") || "anonymous";
+      try {
+        const res = await fetch(`http://localhost:3000/api/insights/${ep._id}?userId=${uid}`);
+        insights = await res.json();
+      } catch(e) {}
+      renderInsightsList(insights, audio);
+
+      let visibility = "public";
+      document.getElementById("visPub").addEventListener("click", () => {
+        visibility = "public";
+        document.getElementById("visPub").classList.add("active");
+        document.getElementById("visPriv").classList.remove("active");
+      });
+      document.getElementById("visPriv").addEventListener("click", () => {
+        visibility = "private";
+        document.getElementById("visPriv").classList.add("active");
+        document.getElementById("visPub").classList.remove("active");
+      });
+
+      document.getElementById("saveInsightBtn").addEventListener("click", async () => {
+        const text = document.getElementById("insightText").value.trim();
+        if (!text) { document.getElementById("insightText").focus(); return; }
+        const ts = Math.floor(audio.currentTime);
+        const btn = document.getElementById("saveInsightBtn");
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+        try {
+          const res = await fetch("http://localhost:3000/api/insights", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ episodeId: ep._id, timestamp: ts, text, visibility, userId: uid })
+          });
+          const saved = await res.json();
+          insights.push(saved.insight);
+          insights.sort((a,b) => a.timestamp - b.timestamp);
+          renderInsightsList(insights, audio);
+          document.getElementById("insightText").value = "";
+          showToast("💡 Insight saved at " + fmt(ts));
+        } catch(e) { showToast("Failed to save insight."); }
+        btn.innerText = "Save Insight";
+        btn.disabled = false;
       });
     };
 
