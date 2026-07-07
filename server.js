@@ -22,7 +22,8 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true }
 });
-const User = mongoose.model("User", userSchema);
+const User;
+User = mongoose.model("User", userSchema);
 
 const episodeSchema = new mongoose.Schema({
   title: { type: String, required: true },
