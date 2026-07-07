@@ -160,6 +160,11 @@
     .insight-body p { font-size: 0.83rem; opacity: 0.72; line-height: 1.5; }
     .insight-private-tag { font-size: 0.65rem; opacity: 0.4; margin-left: 4px; }
     .no-insights { text-align: center; opacity: 0.38; font-size: 0.83rem; padding: 0.8rem 0; }
+    
+    /* Highlights */
+    .highlights-list { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 0.5rem; }
+    .highlight-badge { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 0.4rem 0.8rem; font-size: 0.85rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+    .highlight-badge:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
   </style>
 </head>
 <body>
@@ -170,6 +175,7 @@
       <ul>
         <li onclick="location.href='home.html'">Home</li>
         <li onclick="location.href='episodes.html'">Episodes</li>
+        <li onclick="location.href='journey.html'">Journeys</li>
         <li>About Us</li>
         <li>Blog</li>
       </ul>
@@ -194,7 +200,12 @@
     const username = localStorage.getItem("username");
     const authBtns = document.getElementById("authBtns");
     if (token) {
-      authBtns.innerHTML = `<span>Welcome, ${username || 'User'}!</span><button class="logout" id="logoutBtn">Logout</button>`;
+      const role = localStorage.getItem("role");
+      authBtns.innerHTML = `
+        ${role === "admin" ? '<button class="login" onclick="location.href=\\\'admin.html\\\'" style="margin-right: 15px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4);"><i class="fas fa-hammer"></i> Creator Studio</button>' : ''}
+        <span>Welcome! ${username}</span>
+        <button class="logout" id="logoutBtn">Logout</button>
+      `;
       document.getElementById("logoutBtn").addEventListener("click", () => {
         localStorage.removeItem("token"); localStorage.removeItem("username"); window.location.reload();
       });
@@ -283,7 +294,23 @@
           </div>
         </div>
 
+        </div>
+        
+        <div class="desc-section">
+          <div class="desc-card">
+            <h2><i class="fas fa-align-left" style="margin-right:8px; opacity:0.6;"></i>About This Episode</h2>
+            <p>${ep.description || 'No description available for this episode.'}</p>
+          </div>
+        </div>
+
         <div class="insights-section">
+          <div class="insights-card" style="margin-bottom: 2rem;">
+            <h3><i class="fas fa-star" style="color: #ffd93d;"></i> Community Highlights</h3>
+            <div id="highlightsList">
+              <div class="no-insights"><i class="fas fa-spinner fa-spin"></i> Loading highlights...</div>
+            </div>
+          </div>
+
           <div class="insights-card">
             <h3>💡 Insight Mode</h3>
             <div class="insight-form-top">
@@ -300,11 +327,6 @@
           </div>
         </div>
 
-        <div class="desc-section">
-          <div class="desc-card">
-            <h2><i class="fas fa-align-left" style="margin-right:8px; opacity:0.6;"></i>About This Episode</h2>
-            <p>${ep.description || 'No description available for this episode.'}</p>
-          </div>
         </div>`;
 
       initPlayer(ep);
@@ -434,6 +456,7 @@
 
       initReactions(ep, audio);
       initInsights(ep, audio);
+      initHighlights(ep, audio);
     };
 
     const EMOJI_MAP = { fire: "🔥", funny: "😂", mindblowing: "🤯", relatable: "❤️" };
@@ -571,6 +594,37 @@
         btn.innerText = "Save Insight";
         btn.disabled = false;
       });
+    };
+
+    const initHighlights = async (ep, audio) => {
+      const container = document.getElementById("highlightsList");
+      try {
+        const res = await fetch(`http://localhost:3000/api/highlights/${ep._id}`);
+        const highlights = await res.json();
+        
+        if (!highlights || highlights.length === 0) {
+          container.innerHTML = '<div class="no-insights">No highlights yet. React to moments to create them!</div>';
+          return;
+        }
+
+        container.innerHTML = '<div class="highlights-list"></div>';
+        const list = container.querySelector(".highlights-list");
+        
+        highlights.forEach(h => {
+          const emoji = EMOJI_MAP[h.dominantReaction] || "⚡";
+          const btn = document.createElement("button");
+          btn.className = "highlight-badge";
+          btn.innerHTML = `${emoji} ${fmt(h.timestamp)} <span style="opacity:0.5; font-size:0.7rem;">(${h.totalReactions})</span>`;
+          btn.title = `Jump to ${fmt(h.timestamp)}`;
+          btn.addEventListener("click", () => {
+            audio.currentTime = h.timestamp;
+            if (audio.paused) audio.play();
+          });
+          list.appendChild(btn);
+        });
+      } catch (e) {
+        container.innerHTML = '<div class="no-insights">Failed to load highlights.</div>';
+      }
     };
 
     const loadEpisode = async () => {

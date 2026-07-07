@@ -3,12 +3,29 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const fs = require("fs");
+const multer = require("multer");
 require("dotenv").config();
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, ".")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Configure Multer for audio uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "uploads");
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storage, limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB limit
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -20,7 +37,8 @@ mongoose.connect(process.env.MONGO_URI, {
 const userSchema = new mongoose.Schema({
   username: { type: String },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  role: { type: String, default: "user", enum: ["user", "admin"] }
 });
 const User = mongoose.model("User", userSchema);
 
@@ -55,32 +73,83 @@ const insightSchema = new mongoose.Schema({
 });
 const Insight = mongoose.model("Insight", insightSchema);
 
+const journeySchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, default: "" },
+  category: { type: String, default: "General" },
+  episodes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Episode" }],
+  createdAt: { type: Date, default: Date.now }
+});
+const Journey = mongoose.model("Journey", journeySchema);
+
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretpodcastkey";
+
+// Admin Authentication Middleware
+const authenticateAdmin = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "Unauthorized: No token provided" });
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role !== "admin") return res.status(403).json({ message: "Forbidden: Admin access required" });
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Unauthorized: Invalid token" });
+  }
+};
 
 app.post("/signup", async (req, res) => {
   try {
     const { username, email, password } = req.body;
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ message: "Email already registered!" });
-    const newUser = new User({ username, email, password });
+    // Default to user, but allow seeding admins later if needed
+    const newUser = new User({ username, email, password, role: "user" });
     await newUser.save();
-    const token = jwt.sign({ id: newUser._id, email: newUser.email }, JWT_SECRET, { expiresIn: "1d" });
-    res.json({ message: "User registered successfully!", token });
+    const token = jwt.sign({ id: newUser._id, email: newUser.email, role: newUser.role }, JWT_SECRET, { expiresIn: "1d" });
+    res.json({ message: "User registered successfully!", token, role: newUser.role });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 });
 
+let ADMIN_OVERRIDE_PASSWORD = "123";
+
 app.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = req.body.email ? req.body.email.trim().toLowerCase() : "";
+    const password = req.body.password;
+
+    // Admin Override Flow
+    if (email === "admin" || email === "admin@gmail.com" || email === "admin@echocast.com") {
+      if (password === ADMIN_OVERRIDE_PASSWORD) {
+        const token = jwt.sign({ id: "admin_override", email: "admin", role: "admin" }, JWT_SECRET, { expiresIn: "1d" });
+        return res.json({ message: "Admin login successful!", token, username: "Admin", role: "admin", redirect: "/admin.html" });
+      } else {
+        return res.status(400).json({ message: "Invalid admin credentials!" });
+      }
+    }
+
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found!" });
     if (user.password !== password) return res.status(400).json({ message: "Invalid credentials!" });
-    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: "1d" });
-    res.json({ message: "Login successful!", token, username: user.username });
+    const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: "1d" });
+    res.json({ message: "Login successful!", token, username: user.username, role: user.role });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/api/admin/change-password", authenticateAdmin, (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (currentPassword !== ADMIN_OVERRIDE_PASSWORD) {
+      return res.status(400).json({ message: "Incorrect current password." });
+    }
+    ADMIN_OVERRIDE_PASSWORD = newPassword;
+    res.json({ message: "Admin password updated successfully." });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
@@ -105,13 +174,55 @@ app.get("/api/episodes/:id", async (req, res) => {
   }
 });
 
-app.post("/api/episodes", async (req, res) => {
+app.post("/api/episodes", authenticateAdmin, async (req, res) => {
   try {
     const episode = new Episode(req.body);
     await episode.save();
     res.status(201).json({ message: "Episode created!", episode });
   } catch (err) {
     res.status(500).json({ message: "Server error creating episode", error: err.message });
+  }
+});
+
+app.delete("/api/episodes/:id", authenticateAdmin, async (req, res) => {
+  try {
+    const episode = await Episode.findById(req.params.id);
+    if (!episode) return res.status(404).json({ message: "Episode not found" });
+    
+    // Optionally delete the file from disk if it was uploaded
+    if (episode.audioUrl.startsWith('/uploads/')) {
+      const filePath = path.join(__dirname, episode.audioUrl);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    await Episode.findByIdAndDelete(req.params.id);
+    res.json({ message: "Episode deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error deleting episode", error: err.message });
+  }
+});
+
+app.post("/api/upload", authenticateAdmin, upload.single("audioFile"), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: "Audio file is required" });
+    
+    const { title, description, category } = req.body;
+    if (!title) return res.status(400).json({ message: "Title is required" });
+
+    const newEpisode = new Episode({
+      title,
+      description,
+      category: category || "General",
+      audioUrl: `/uploads/${req.file.filename}`,
+      coverImage: `https://api.dicebear.com/7.x/adventurer/svg?seed=${Date.now()}` // Default random cover
+    });
+
+    await newEpisode.save();
+    res.status(201).json({ message: "Episode uploaded successfully", episode: newEpisode });
+  } catch (err) {
+    res.status(500).json({ message: "Server error during upload", error: err.message });
   }
 });
 
@@ -157,6 +268,80 @@ app.get("/api/insights/:episodeId", async (req, res) => {
     res.json(insights);
   } catch (err) {
     res.status(500).json({ message: "Error fetching insights", error: err.message });
+  }
+});
+
+// --- Phase 4: Journeys API ---
+app.get("/api/journeys", async (req, res) => {
+  try {
+    const journeys = await Journey.find().sort({ createdAt: -1 });
+    res.json(journeys);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching journeys", error: err.message });
+  }
+});
+
+app.get("/api/journeys/:id", async (req, res) => {
+  try {
+    const journey = await Journey.findById(req.params.id).populate("episodes");
+    if (!journey) return res.status(404).json({ message: "Journey not found" });
+    res.json(journey);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching journey", error: err.message });
+  }
+});
+
+app.post("/api/journeys", authenticateAdmin, async (req, res) => {
+  try {
+    const journey = new Journey(req.body);
+    await journey.save();
+    res.status(201).json({ message: "Journey created!", journey });
+  } catch (err) {
+    res.status(500).json({ message: "Error creating journey", error: err.message });
+  }
+});
+
+// --- Phase 4: Highlights API ---
+app.get("/api/highlights/:episodeId", async (req, res) => {
+  try {
+    const { episodeId } = req.params;
+    
+    // Aggregate reactions into 5-second buckets
+    const highlights = await Reaction.aggregate([
+      { $match: { episodeId: new mongoose.Types.ObjectId(episodeId) } },
+      { 
+        $group: {
+          _id: {
+            bucket: { $subtract: ["$timestamp", { $mod: ["$timestamp", 5] }] },
+            reactionType: "$reactionType"
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $group: {
+          _id: "$_id.bucket",
+          totalReactions: { $sum: "$count" },
+          reactions: { $push: { type: "$_id.reactionType", count: "$count" } }
+        }
+      },
+      { $sort: { totalReactions: -1 } },
+      { $limit: 4 } // Top 4 highlights
+    ]);
+
+    // Format highlights to find dominant reaction
+    const formattedHighlights = highlights.map(h => {
+      const dominant = h.reactions.sort((a, b) => b.count - a.count)[0];
+      return {
+        timestamp: h._id,
+        totalReactions: h.totalReactions,
+        dominantReaction: dominant.type
+      };
+    }).sort((a, b) => a.timestamp - b.timestamp); // Sort chronologically
+
+    res.json(formattedHighlights);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching highlights", error: err.message });
   }
 });
 
@@ -241,8 +426,26 @@ app.post("/api/seed", async (req, res) => {
         category: "Environment"
       }
     ];
-    await Episode.insertMany(episodes);
-    res.json({ message: "Episodes seeded successfully!", count: episodes.length });
+    const savedEpisodes = await Episode.insertMany(episodes);
+    
+    await Journey.deleteMany({});
+    const journeys = [
+      {
+        title: "The Beginner's Mindset",
+        description: "A curated path to overcoming self-doubt and unlocking your true potential through practical mental frameworks.",
+        category: "Mindset",
+        episodes: [savedEpisodes[0]._id, savedEpisodes[1]._id, savedEpisodes[3]._id]
+      },
+      {
+        title: "Future & Innovation",
+        description: "Explore the intersection of technology, climate action, and human creativity to understand where the world is heading.",
+        category: "Technology",
+        episodes: [savedEpisodes[4]._id, savedEpisodes[5]._id]
+      }
+    ];
+    await Journey.insertMany(journeys);
+
+    res.json({ message: "Episodes and Journeys seeded successfully!", episodeCount: savedEpisodes.length, journeyCount: journeys.length });
   } catch (err) {
     res.status(500).json({ message: "Error seeding data", error: err.message });
   }

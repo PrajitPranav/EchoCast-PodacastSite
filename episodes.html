@@ -81,6 +81,7 @@
     <nav>
       <ul>
         <li onclick="location.href='home.html'">Home</li>
+        <li onclick="location.href='journey.html'">Journeys</li>
         <li class="active-nav" onclick="location.href='episodes.html'">Episodes</li>
         <li>About Us</li>
         <li>Blog</li>
@@ -129,7 +130,12 @@
     const username = localStorage.getItem("username");
     const authBtns = document.getElementById("authBtns");
     if (token) {
-      authBtns.innerHTML = `<span>Welcome, ${username || 'User'}!</span><button class="logout" id="logoutBtn">Logout</button>`;
+      const role = localStorage.getItem("role");
+      authBtns.innerHTML = `
+        ${role === "admin" ? '<button class="login" onclick="location.href=\\\'admin.html\\\'" style="margin-right: 15px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4);"><i class="fas fa-hammer"></i> Creator Studio</button>' : ''}
+        <span>Welcome! ${username}</span>
+        <button class="logout" id="logoutBtn">Logout</button>
+      `;
       document.getElementById("logoutBtn").addEventListener("click", () => {
         localStorage.removeItem("token");
         localStorage.removeItem("username");

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EchoCast - Curated Journeys</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
+    body { background: linear-gradient(135deg, #2d0b45, #792b73); color: #fff; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; padding-bottom: 90px; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 4rem; }
+    .logo { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav ul li { position: relative; cursor: pointer; font-weight: 500; transition: transform 0.3s ease; }
+    nav ul li::after { content: ""; position: absolute; bottom: -6px; left: 50%; width: 0; height: 2px; background: #fff; transition: width 0.3s ease, left 0.3s ease; }
+    nav ul li:hover { transform: scale(1.1); }
+    nav ul li:hover::after { width: 100%; left: 0; }
+    .active-nav::after { width: 100%; left: 0; }
+    .auth-btns button { padding: 0.5rem 1.2rem; border-radius: 20px; border: none; margin-left: 0.5rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
+    .auth-btns .login { background: transparent; border: 1px solid #fff; color: #fff; }
+    .auth-btns .signup { background: #fff; color: #333; }
+    .auth-btns button:hover { transform: translateY(-2px); opacity: 0.9; }
+
+    .page-header { text-align: center; padding: 3rem 2rem 1.5rem; }
+    .page-header h1 { font-size: 2.8rem; font-weight: 800; font-family: "Raleway", sans-serif; margin-bottom: 0.5rem; }
+    .page-header p { font-size: 1.1rem; opacity: 0.8; max-width: 600px; margin: 0 auto; }
+
+    .journeys-wrap { flex: 1; padding: 2rem 4rem 4rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .journeys-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
+    
+    .journey-card { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 1.8rem; backdrop-filter: blur(10px); transition: 0.3s; cursor: pointer; position: relative; overflow: hidden; }
+    .journey-card::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(to bottom, #c065bb, #ff6b81); opacity: 0; transition: 0.3s; }
+    .journey-card:hover { transform: translateY(-5px); background: rgba(0,0,0,0.35); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .journey-card:hover::before { opacity: 1; }
+    .journey-cat { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #c065bb; font-weight: 700; margin-bottom: 0.5rem; display: block; }
+    .journey-card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.8rem; }
+    .journey-card p { font-size: 0.9rem; opacity: 0.75; line-height: 1.5; margin-bottom: 1.5rem; }
+    .journey-meta { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; opacity: 0.6; }
+    
+    /* Detail View */
+    .journey-detail { display: none; background: rgba(0,0,0,0.3); border-radius: 20px; padding: 2.5rem; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .back-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 20px; padding: 0.5rem 1rem; font-size: 0.85rem; cursor: pointer; margin-bottom: 2rem; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .back-btn:hover { background: rgba(255,255,255,0.1); }
+    
+    .detail-header { margin-bottom: 2.5rem; }
+    .detail-header h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .detail-header p { font-size: 1.05rem; opacity: 0.8; max-width: 700px; }
+    
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before { content: ''; position: absolute; left: 7px; top: 10px; bottom: 20px; width: 2px; background: rgba(255,255,255,0.15); }
+    
+    .ep-node { position: relative; margin-bottom: 2rem; background: rgba(255,255,255,0.05); border-radius: 15px; padding: 1.2rem; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; cursor: pointer; display: flex; gap: 1.5rem; align-items: center; }
+    .ep-node:hover { background: rgba(255,255,255,0.1); border-color: rgba(192,101,187,0.4); transform: translateX(5px); }
+    .ep-node::before { content: ''; position: absolute; left: -2rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; background: #2d0b45; border: 2px solid #c065bb; border-radius: 50%; transition: 0.3s; z-index: 2; box-shadow: 0 0 0 4px rgba(45,11,69,1); }
+    .ep-node:hover::before { background: #c065bb; box-shadow: 0 0 10px #c065bb, 0 0 0 4px rgba(45,11,69,1); }
+    
+    .ep-node img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; }
+    .ep-info { flex: 1; }
+    .ep-info h4 { font-size: 1.15rem; margin-bottom: 0.3rem; }
+    .ep-info p { font-size: 0.85rem; opacity: 0.7; }
+    .play-circle { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: 0.3s; color: #fff; }
+    .ep-node:hover .play-circle { background: #fff; color: #2d0b45; }
+
+    .state-msg { text-align: center; opacity: 0.6; padding: 3rem; font-size: 1.1rem; grid-column: 1/-1; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo" onclick="location.href='home.html'"><i class="fas fa-podcast"></i> EchoCast</div>
+    <nav>
+      <ul>
+        <li onclick="location.href='home.html'">Home</li>
+        <li onclick="location.href='episodes.html'">Episodes</li>
+        <li class="active-nav" onclick="location.href='journey.html'">Journeys</li>
+        <li>About Us</li>
+        <li>Blog</li>
+      </ul>
+    </nav>
+    <div class="auth-btns" id="authBtns">
+      <button class="login" onclick="location.href='login.html'">Log In</button>
+      <button class="signup" onclick="location.href='login.html'">Sign Up</button>
+    </div>
+  </header>
+
+  <div class="page-header" id="pageHeader">
+    <h1><i class="fas fa-route"></i> Curated Journeys</h1>
+    <p>Follow structured paths of episodes hand-picked to help you grow, learn, and discover.</p>
+  </div>
+
+  <div class="journeys-wrap">
+    <!-- Grid View -->
+    <div class="journeys-grid" id="journeysGrid">
+      <div class="state-msg"><i class="fas fa-spinner fa-spin"></i> Loading journeys...</div>
+    </div>
+
+    <!-- Detail View -->
+    <div class="journey-detail" id="journeyDetail">
+      <!-- Injected via JS -->
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const token = localStorage.getItem("token");
+      const username = localStorage.getItem("username");
+      if (token) {
+        const role = localStorage.getItem("role");
+        document.getElementById("authBtns").innerHTML = `
+          ${role === "admin" ? '<button class="login" onclick="location.href=\\\'admin.html\\\'" style="margin-right: 15px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4);"><i class="fas fa-hammer"></i> Creator Studio</button>' : ''}
+          <span>Welcome! ${username}</span>
+          <button class="logout" onclick="logout()">Logout</button>
+        `;
+      }
+      loadJourneys();
+    });
+
+    const logout = () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      location.reload();
+    };
+
+    const loadJourneys = async () => {
+      const grid = document.getElementById("journeysGrid");
+      try {
+        const res = await fetch("http://localhost:3000/api/journeys");
+        const journeys = await res.json();
+        
+        if (!journeys.length) {
+          grid.innerHTML = `<div class="state-msg">No journeys available yet.</div>`;
+          return;
+        }
+
+        grid.innerHTML = "";
+        journeys.forEach(j => {
+          const card = document.createElement("div");
+          card.className = "journey-card";
+          card.innerHTML = `
+            <span class="journey-cat">${j.category}</span>
+            <h3>${j.title}</h3>
+            <p>${j.description}</p>
+            <div class="journey-meta">
+              <span><i class="fas fa-list-ol"></i> ${j.episodes.length} Episodes</span>
+            </div>
+          `;
+          card.addEventListener("click", () => openJourney(j._id));
+          grid.appendChild(card);
+        });
+      } catch (err) {
+        grid.innerHTML = `<div class="state-msg" style="color:#ff6b81;">Failed to load journeys.</div>`;
+      }
+    };
+
+    const openJourney = async (id) => {
+      const grid = document.getElementById("journeysGrid");
+      const detail = document.getElementById("journeyDetail");
+      const header = document.getElementById("pageHeader");
+      
+      grid.style.display = "none";
+      header.style.display = "none";
+      detail.style.display = "block";
+      detail.innerHTML = `<div class="state-msg"><i class="fas fa-spinner fa-spin"></i> Loading journey details...</div>`;
+
+      try {
+        const res = await fetch("http://localhost:3000/api/journeys/" + id);
+        const j = await res.json();
+        
+        let epHtml = "";
+        j.episodes.forEach((ep, i) => {
+          const started = localStorage.getItem("playback_" + ep._id) ? '<i class="fas fa-check-circle" style="color:#c065bb; margin-left:8px;" title="Started"></i>' : '';
+          epHtml += `
+            <div class="ep-node" onclick="location.href='episode.html?id=${ep._id}'">
+              <img src="${ep.coverImage}" alt="Cover">
+              <div class="ep-info">
+                <span style="font-size:0.75rem; color:#c065bb; font-weight:700;">Step ${i+1}</span>
+                <h4>${ep.title} ${started}</h4>
+                <p>${ep.duration} · ${ep.host}</p>
+              </div>
+              <div class="play-circle"><i class="fas fa-play" style="margin-left:3px;"></i></div>
+            </div>
+          `;
+        });
+
+        detail.innerHTML = `
+          <button class="back-btn" onclick="closeJourney()"><i class="fas fa-arrow-left"></i> Back to Journeys</button>
+          <div class="detail-header">
+            <span class="journey-cat" style="font-size:0.85rem;">${j.category}</span>
+            <h2>${j.title}</h2>
+            <p>${j.description}</p>
+          </div>
+          <div class="timeline">
+            ${epHtml}
+          </div>
+        `;
+      } catch (err) {
+        detail.innerHTML = `
+          <button class="back-btn" onclick="closeJourney()"><i class="fas fa-arrow-left"></i> Back</button>
+          <div class="state-msg" style="color:#ff6b81;">Failed to load journey details.</div>
+        `;
+      }
+    };
+
+    const closeJourney = () => {
+      document.getElementById("journeysGrid").style.display = "grid";
+      document.getElementById("pageHeader").style.display = "block";
+      document.getElementById("journeyDetail").style.display = "none";
+    };
+  </script>
+</body>
+</html>
