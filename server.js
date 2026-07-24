@@ -40,7 +40,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, default: "user", enum: ["user", "admin"] }
 });
-const User = mongoose.model("User", userSchema);
+const User;
+User = mongoose.model("User", userSchema);
 
 const episodeSchema = new mongoose.Schema({
   title: { type: String, required: true },
