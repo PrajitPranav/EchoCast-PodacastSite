@@ -83,7 +83,6 @@
 
     audio { display: none; }
 
-    /* === Phase 3: Moment Reactions === */
     .reactions-section { padding: 0 4rem 1.5rem; }
     .reactions-card { background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 1.4rem 2rem; backdrop-filter: blur(10px); }
     .reactions-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
@@ -94,7 +93,7 @@
     .rxn-btn:hover { background: rgba(255,255,255,0.16); transform: translateY(-2px); }
     .rxn-btn:active { transform: scale(0.95); }
     .rxn-btn.flash { background: rgba(121,43,115,0.5); border-color: #c065bb; }
-    /* === Emoji Reaction Markers === */
+ 
     .rxn-emoji-marker {
       position: absolute;
       top: 50%;
@@ -502,7 +501,7 @@
         reactions = await res.json();
       } catch(e) {}
 
-      // Render markers once duration is known
+    
       const tryRender = () => { if (!isNaN(audio.duration) && audio.duration > 0) renderReactionMarkers(reactions, audio.duration); };
       audio.addEventListener("loadedmetadata", tryRender);
       tryRender();
