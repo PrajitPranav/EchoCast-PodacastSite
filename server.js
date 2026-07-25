@@ -13,7 +13,6 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, ".")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Configure Multer for audio uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, "uploads");
@@ -85,7 +84,6 @@ const Journey = mongoose.model("Journey", journeySchema);
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretpodcastkey";
 
-// Admin Authentication Middleware
 const authenticateAdmin = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ message: "Unauthorized: No token provided" });
@@ -121,7 +119,6 @@ app.post("/login", async (req, res) => {
     const email = req.body.email ? req.body.email.trim().toLowerCase() : "";
     const password = req.body.password;
 
-    // Admin Override Flow
     if (email === "admin" || email === "admin@gmail.com" || email === "admin@echocast.com") {
       if (password === ADMIN_OVERRIDE_PASSWORD) {
         const token = jwt.sign({ id: "admin_override", email: "admin", role: "admin" }, JWT_SECRET, { expiresIn: "1d" });
@@ -190,7 +187,6 @@ app.delete("/api/episodes/:id", authenticateAdmin, async (req, res) => {
     const episode = await Episode.findById(req.params.id);
     if (!episode) return res.status(404).json({ message: "Episode not found" });
     
-    // Optionally delete the file from disk if it was uploaded
     if (episode.audioUrl.startsWith('/uploads/')) {
       const filePath = path.join(__dirname, episode.audioUrl);
       if (fs.existsSync(filePath)) {
@@ -217,7 +213,7 @@ app.post("/api/upload", authenticateAdmin, upload.single("audioFile"), async (re
       description,
       category: category || "General",
       audioUrl: `/uploads/${req.file.filename}`,
-      coverImage: `https://api.dicebear.com/7.x/adventurer/svg?seed=${Date.now()}` // Default random cover
+      coverImage: `https://api.dicebear.com/7.x/adventurer/svg?seed=${Date.now()}` 
     });
 
     await newEpisode.save();
@@ -272,7 +268,6 @@ app.get("/api/insights/:episodeId", async (req, res) => {
   }
 });
 
-// --- Phase 4: Journeys API ---
 app.get("/api/journeys", async (req, res) => {
   try {
     const journeys = await Journey.find().sort({ createdAt: -1 });
@@ -302,12 +297,10 @@ app.post("/api/journeys", authenticateAdmin, async (req, res) => {
   }
 });
 
-// --- Phase 4: Highlights API ---
 app.get("/api/highlights/:episodeId", async (req, res) => {
   try {
     const { episodeId } = req.params;
     
-    // Aggregate reactions into 5-second buckets
     const highlights = await Reaction.aggregate([
       { $match: { episodeId: new mongoose.Types.ObjectId(episodeId) } },
       { 
@@ -330,7 +323,6 @@ app.get("/api/highlights/:episodeId", async (req, res) => {
       { $limit: 4 } // Top 4 highlights
     ]);
 
-    // Format highlights to find dominant reaction
     const formattedHighlights = highlights.map(h => {
       const dominant = h.reactions.sort((a, b) => b.count - a.count)[0];
       return {
@@ -338,7 +330,7 @@ app.get("/api/highlights/:episodeId", async (req, res) => {
         totalReactions: h.totalReactions,
         dominantReaction: dominant.type
       };
-    }).sort((a, b) => a.timestamp - b.timestamp); // Sort chronologically
+    }).sort((a, b) => a.timestamp - b.timestamp);
 
     res.json(formattedHighlights);
   } catch (err) {
