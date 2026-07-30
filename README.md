@@ -1,3 +1,3 @@
 **#echo cast podcast site**
 
-A complete podcast site.
+A complete podcast site for audio.
